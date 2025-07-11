@@ -73,6 +73,21 @@
   <button class="toggle" onclick="resetAll()">Reset Tracker</button>
   <label><input type="checkbox" id="stablefordToggle"> Use Stableford Scoring</label>
 
+<h3>Select Course</h3>
+<select id="country" onchange="updateCourses()">
+  <option value="">-- Select Country --</option>
+  <option value="England">England</option>
+  <option value="USA">USA</option>
+</select>
+
+<select id="course" onchange="updateTees()">
+  <option value="">-- Select Course --</option>
+</select>
+
+<select id="tee" onchange="populateCourseInfo()">
+  <option value="">-- Select Tee --</option>
+</select>
+
   <div class="section">
     <h2>Course Info</h2>
     <input type="number" id="slope" placeholder="Slope Rating">
@@ -208,6 +223,71 @@
 
       document.getElementById("leaderboard").innerHTML = lbHTML;
     }
+const golfCourses = {
+  England: {
+    "Stowmarket Golf Club": {
+      "White (M)": { slope: 123, rating: 69.5, par: 69 },
+      "Yellow (M)": { slope: 120, rating: 68.6, par: 69 }
+    }
+  },
+  USA: {
+    "Pebble Beach": {
+      "Black": { slope: 144, rating: 75.5, par: 72 }
+    },
+    "Augusta National": {
+      "Member": { slope: 135, rating: 74.0, par: 72 }
+    }
+  }
+};
+
+function updateCourses() {
+  const country = document.getElementById("country").value;
+  const courseSelect = document.getElementById("course");
+  courseSelect.innerHTML = `<option value="">-- Select Course --</option>`;
+  
+  if (golfCourses[country]) {
+    Object.keys(golfCourses[country]).forEach(course => {
+      const option = document.createElement("option");
+      option.value = course;
+      option.textContent = course;
+      courseSelect.appendChild(option);
+    });
+  }
+  document.getElementById("tee").innerHTML = `<option value="">-- Select Tee --</option>`;
+}
+
+function updateTees() {
+  const country = document.getElementById("country").value;
+  const course = document.getElementById("course").value;
+  const teeSelect = document.getElementById("tee");
+  teeSelect.innerHTML = `<option value="">-- Select Tee --</option>`;
+
+  if (golfCourses[country] && golfCourses[country][course]) {
+    Object.keys(golfCourses[country][course]).forEach(tee => {
+      const option = document.createElement("option");
+      option.value = tee;
+      option.textContent = tee;
+      teeSelect.appendChild(option);
+    });
+  }
+}
+
+function populateCourseInfo() {
+  const country = document.getElementById("country").value;
+  const course = document.getElementById("course").value;
+  const tee = document.getElementById("tee").value;
+
+  if (
+    golfCourses[country] &&
+    golfCourses[country][course] &&
+    golfCourses[country][course][tee]
+  ) {
+    const { slope, rating, par } = golfCourses[country][course][tee];
+    document.getElementById("slope").value = slope;
+    document.getElementById("rating").value = rating;
+    document.getElementById("par").value = par;
+  }
+}
   </script>
 </body>
 </html>
