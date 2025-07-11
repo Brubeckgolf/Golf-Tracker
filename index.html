@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Golf Round Tracker</title>
   <style>
+    /* Your styling — untouched and solid! */
     :root {
       --bg: #ffffff;
       --text: #222222;
@@ -22,9 +23,7 @@
       padding: 1rem;
       transition: all 0.3s ease;
     }
-    h2 {
-      margin-top: 1rem;
-    }
+    h2 { margin-top: 1rem; }
     .logo {
       font-size: 2rem;
       font-weight: bold;
@@ -36,9 +35,7 @@
       border-radius: 5px;
       font-size: 1rem;
     }
-    input {
-      border: 1px solid #ccc;
-    }
+    input { border: 1px solid #ccc; }
     button {
       background: var(--accent);
       color: white;
@@ -73,15 +70,11 @@
   <button class="toggle" onclick="resetAll()">Reset Tracker</button>
   <label><input type="checkbox" id="stablefordToggle"> Use Stableford Scoring</label>
 
-<h3>Select Nearby Course</h3>
-<select id="course">
-  <option value="">-- Loading nearby courses... --</option>
-</select>
+  <h3>Select Nearby Course</h3>
+  <select id="course"><option value="">-- Loading nearby courses... --</option></select>
 
-<h3>Select Tee Box</h3>
-<select id="tee">
-  <option value="">-- Select tee --</option>
-</select>
+  <h3>Select Tee Box</h3>
+  <select id="tee"><option value="">-- Select tee --</option></select>
 
   <div class="section">
     <h2>Course Info</h2>
@@ -98,23 +91,18 @@
     <div id="handicapResults"></div>
   </div>
 
-  <div class="section">
-    <h2>Scores</h2>
-    <div id="scoreTracker"></div>
-  </div>
-
-  <div class="section">
-    <h2>Leaderboard</h2>
-    <div id="leaderboard"></div>
-  </div>
+  <div class="section"><h2>Scores</h2><div id="scoreTracker"></div></div>
+  <div class="section"><h2>Leaderboard</h2><div id="leaderboard"></div></div>
 
   <script>
+    // === BASIC SETUP ===
+    const API_KEY = 'Bearer ZY3EEKKOXP5G27NJNKY2E6PLCA';
     let playerCount = 0;
     const players = [];
+    let selectedCourseTees = [];
 
     function toggleTheme() {
-      const body = document.body;
-      body.dataset.theme = body.dataset.theme === "light" ? "dark" : "light";
+      document.body.dataset.theme = document.body.dataset.theme === "light" ? "dark" : "light";
     }
 
     function resetAll() {
@@ -136,8 +124,8 @@
       const slope = parseFloat(document.getElementById("slope").value);
       const rating = parseFloat(document.getElementById("rating").value);
       const par = parseFloat(document.getElementById("par").value);
-
       players.length = 0;
+
       for (let i = 0; i < playerCount; i++) {
         const name = document.getElementById(`name${i}`).value;
         const index = parseFloat(document.getElementById(`index${i}`).value);
@@ -164,9 +152,7 @@
         const row = document.createElement("div");
         row.innerHTML = `<strong>Hole ${h}</strong><br>`;
         players.forEach((p, i) => {
-          row.innerHTML += `
-            ${p.name}: <input type="number" id="score${i}_h${h}" onchange="updateLeaderboard()">
-          `;
+          row.innerHTML += `${p.name}: <input type="number" id="score${i}_h${h}" onchange="updateLeaderboard()"> `;
         });
         tracker.appendChild(row);
       }
@@ -187,7 +173,7 @@
           p.scores.push(val);
           p.totalGross += val;
 
-          const net = val - p.strokes; // simple offset
+          const net = val - p.strokes;
           p.totalNet += net;
 
           if (stablefordMode) {
@@ -206,61 +192,37 @@
       });
 
       let lbHTML = `<table><tr><th>Player</th><th>Gross</th><th>Net</th>`;
-      if (document.getElementById("stablefordToggle").checked) lbHTML += `<th>Stableford</th>`;
+      if (stablefordMode) lbHTML += `<th>Stableford</th>`;
       lbHTML += `</tr>`;
 
       players.forEach(p => {
         lbHTML += `<tr><td>${p.name}</td><td>${p.totalGross}</td><td>${p.totalNet}</td>`;
-        if (document.getElementById("stablefordToggle").checked) lbHTML += `<td>${p.totalStableford}</td>`;
+        if (stablefordMode) lbHTML += `<td>${p.totalStableford}</td>`;
         lbHTML += `</tr>`;
       });
       lbHTML += `</table>`;
 
       document.getElementById("leaderboard").innerHTML = lbHTML;
     }
-<h3>Select Nearby Course</h3>
-<select id="course">
-  <option value="">-- Loading nearby courses... --</option>
-</select>
 
-let selectedCourseTees = [];
-
-document.getElementById("course").addEventListener("change", function () {
-  const courseId = this.value;
-  if (!courseId) return;
-
-  fetch(`https://api.golfcourseapi.com/courses/${courseId}`, {
-    headers: {
-      Authorization: 'Bearer ZY3EEKKOXP5G27NJNKY2E6PLCA' // replace with your actual API key
-    }
-  })
-  .then(res => res.json())
-  .then(course => {
-    selectedCourseTees = course.tees || [];
-
-    const teeSelect = document.getElementById("tee");
-    teeSelect.innerHTML = `<option value="">-- Select tee --</option>`;
-    selectedCourseTees.forEach((tee, index) => {
-      const label = `${tee.name} (${tee.gender})`;
-      const option = document.createElement("option");
-      option.value = index; // use index to reference selected tee later
-      option.textContent = label;
-      teeSelect.appendChild(option);
+    // === GPS + COURSE API ===
+    window.addEventListener('load', () => {
+      if ('geolocation' in navigator) {
+        navigator.geolocation.getCurrentPosition(pos => {
+          fetchNearbyCourses(pos.coords.latitude, pos.coords.longitude);
+        }, () => {
+          document.getElementById("course").innerHTML = `<option>Location unavailable</option>`;
+        });
+      }
     });
-  });
-});
 
-// Auto-fill slope/rating/par when tee is selected
-document.getElementById("tee").addEventListener("change", function () {
-  const teeIndex = parseInt(this.value);
-  const tee = selectedCourseTees[teeIndex];
-
-  if (tee) {
-    document.getElementById("slope").value = tee.slope_rating || "";
-    document.getElementById("rating").value = tee.course_rating || "";
-    document.getElementById("par").value = tee.par || "";
-  }
-});
-  </script>
-</body>
-</html>
+    function fetchNearbyCourses(lat, lon) {
+      fetch(`https://api.golfcourseapi.com/courses?lat=${lat}&lon=${lon}`, {
+        headers: { Authorization: API_KEY }
+      })
+      .then(res => res.json())
+      .then(data => {
+        const dropdown = document.getElementById("course");
+        dropdown.innerHTML = `<option value="">-- Select Course --</option>`;
+        data.courses.forEach(c => {
+          const opt = document.create
