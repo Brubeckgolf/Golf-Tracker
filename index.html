@@ -108,7 +108,7 @@
 
     function fetchNearbyCourses(lat, lon) {
       fetch(`https://api.golfcourseapi.com/courses?lat=${lat}&lon=${lon}`, {
-        headers: { Authorization:Key 'MU4JMLINZZAY3OFWXR74XHI6CI' }
+        headers: { Authorization:'MU4JMLINZZAY3OFWXR74XHI6CI' }
       })
       .then(res => res.json())
       .then(data => {
@@ -128,7 +128,7 @@
       if (!courseId) return;
 
       fetch(`https://api.golfcourseapi.com/courses/${courseId}`, {
-        headers: { Authorization:Key 'MU4JMLINZZAY3OFWXR74XHI6CI' }
+        headers: { Authorization:'MU4JMLINZZAY3OFWXR74XHI6CI' }
       })
       .then(res => res.json())
       .then(course => {
@@ -272,7 +272,7 @@
 
     function fetchNearbyCourses(lat, lon) {
       fetch(`https://api.golfcourseapi.com/courses?lat=${lat}&lon=${lon}`, {
-        headers: { Authorization:Key 'MU4JMLINZZAY3OFWXR74XHI6CI' }
+        headers: { Authorization:'MU4JMLINZZAY3OFWXR74XHI6CI' }
       })
       .then(res => res.json())
       .then(data => {
@@ -292,7 +292,7 @@
       if (!courseId) return;
 
       fetch(`https://api.golfcourseapi.com/courses/${courseId}`, {
-        headers: { Authorization:Key 'MU4JMLINZZAY3OFWXR74XHI6CI' }
+        headers: { Authorization:'MU4JMLINZZAY3OFWXR74XHI6CI' }
       })
       .then(res => res.json())
       .then(course => {
