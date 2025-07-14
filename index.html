@@ -152,29 +152,35 @@
   }
 
   function calculateHandicaps() {
-    const slope = parseFloat(document.getElementById("slope").value);
-    const rating = parseFloat(document.getElementById("rating").value);
-    const par = parseFloat(document.getElementById("par").value);
-    players.length = 0;
+  const slope = parseFloat(document.getElementById("slope").value);
+  const rating = parseFloat(document.getElementById("rating").value);
+  const par = parseFloat(document.getElementById("par").value);
+  players.length = 0;
 
-    for (let i = 0; i < playerCount; i++) {
-      const name = document.getElementById(`name${i}`).value;
-      const index = parseFloat(document.getElementById(`index${i}`).value);
-      const handicap = Math.round((index * slope) / 113 + (rating - par));
-      players.push({ name, handicap, scores: [], strokes: 0 });
+  for (let i = 0; i < playerCount; i++) {
+    const name = document.getElementById(`name${i}`).value.trim();
+    const indexInput = document.getElementById(`index${i}`).value;
+    const index = parseFloat(indexInput);
+
+    if (name === "" || isNaN(index)) {
+      alert(`Player ${i + 1}: Please enter a name and a valid handicap index.`);
+      return;
     }
 
-    const min = Math.min(...players.map(p => p.handicap));
-    let resultHTML = "";
-    players.forEach(p => {
-      p.strokes = p.handicap - min;
-      resultHTML += `<p>${p.name}: Playing Handicap = ${p.handicap}, Strokes Given = ${p.strokes}</p>`;
-    });
-    document.getElementById("handicapResults").innerHTML = resultHTML;
-
-    generateScoreInputs();
+    const handicap = Math.round((index * slope) / 113 + (rating - par));
+    players.push({ name, handicap, scores: [], strokes: 0 });
   }
 
+  const min = Math.min(...players.map(p => p.handicap));
+  let resultHTML = "";
+  players.forEach(p => {
+    p.strokes = p.handicap - min;
+    resultHTML += `<p>${p.name}: Playing Handicap = ${p.handicap}, Strokes Given = ${p.strokes}</p>`;
+  });
+  document.getElementById("handicapResults").innerHTML = resultHTML;
+
+  generateScoreInputs();
+}
   function generateScoreInputs() {
     const tracker = document.getElementById("scoreTracker");
     tracker.innerHTML = "";
